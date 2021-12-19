@@ -157,3 +157,7 @@ server.pem
 
 # Actual mapping file
 mapping.json
+
+
+# Actual metrics file
+metrics.csv

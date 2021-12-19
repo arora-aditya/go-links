@@ -27,7 +27,7 @@ There is a `mapping.json.template` file in the repository that you can rename to
 
 ### Setup Alfred workflow
 
-Import the `go.alfredworkflow` package into alfred, you will need to purchase the powerpack
+Import the `setup/go.alfredworkflow` package into alfred, you will need to purchase the powerpack
 
 ### Setup `/etc/hosts` file
 
@@ -86,3 +86,4 @@ If you are trying to open a shortlink that you have created eg: `test` from abov
 
 1. There is a metrics logging file `metrics.csv` that logs the visit time of each shortlink with its corresponding destination domain
 2. You can configure the port, the mapping file, the metrics file, the prefix to create a new domain, as well as the path of the certificate file all through the `config.ini` file
+3. This service can also be setup as a `launchd` service using the `setup/com.adityaarora.golinks.plist` file as reference. Ensure you change the `WorkingDirectory` as well as the `StandardOutPath` and `StandardErrorPath`. After that simply store the file in `/Library/LaunchDaemons` and then run `sudo launchctl load /Library/LaunchDaemons/com.adityaarora.golinks.plist` to load the service. The service should  be started automatically, and if there are any issues you can inspect the log files you put in.
