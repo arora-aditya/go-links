@@ -2,11 +2,11 @@
 
 Custom go/ links that are setup through a simple python HTTPs server with configurations with Alfred!
 
-Inspired by [golinks](golinks.io/) and [go-alfred](https://github.com/kswilster/go-alfred)
+Inspired by [golinks](https://golinks.io/) and [go-alfred](https://github.com/kswilster/go-alfred)
 
 ## Setup
 
-### Generate a new cerificate
+### Generate a new certificate
 
 Required to serve our https server, store in same directory as the repository
 
@@ -27,11 +27,11 @@ There is a `mapping.json.template` file in the repository that you can rename to
 
 ### Setup Alfred workflow
 
-Import the `setup/go.alfredworkflow` package into alfred, you will need to purchase the powerpack
+Import the [setup/go.alfredworkflow](setup/go.alfredworkflow) package into alfred, you will need to purchase the powerpack
 
 ### Setup `/etc/hosts` file
 
-To setup `https://go/` to work for you you will need to add a loopback from your local IP address to the go domain, which can be done by adding the line below to your file
+To setup `https://go/` to work for you you will need to add a loopback from your local IP address to the go domain, which can be done by adding the line below to your `/etc/hosts` file
 
 ```
 127.0.0.1 go
@@ -43,6 +43,7 @@ To setup `https://go/` to work for you you will need to add a loopback from your
 - The server binds to port 443 (`https`) and listens for requests, and thus needs to be started with `sudo`
 - The `&` at the end is to start the server in the background
 - The `--goserver` argument adds as an easy way to search for the process using `ps -a | grep goserver` for when you actually want to kill it (you will need to use `sudo kill <pid>` to actually kill the process)
+- The automatic start workflow using `launchd` is documented at the bottom as an optional alternative to starting the server manually
 
 ```bash
 sudo python3 main.py --goserver &
@@ -56,11 +57,9 @@ sudo python3 main.py --goserver &
 
 #### Create a new shortlink
 
-If `test` is your short keyword, and `https://example.com` is your destination link then you can setup the mapping by copying the domain into your clipboard (in this case, `https://example.com`) and then going into alfred and typing `new` and then `test` which is your shortlink and then pressing enter, it will automatically grab the url from your clipboard and navigate you directly to the URL below
+If `test` is your short keyword, and `https://example.com` is your destination link then you can setup the mapping by going into alfred and typing `new` and then `test` which is your shortlink and then your domain `https://example.com` and then pressing enter, it will automatically navigate you to the URL below [https://go/new?test=https://example.com](https://go/new?test=https://example.com), and the resulting webpage should confirm that the mapping has been added
 
-[https://go/new?test=https://example.com](https://go/new?test=https://example.com), and the resulting webpage should confirm that the mapping has been added
-
-![Create a new link](https://media2.giphy.com/media/x5QNflTECL15ZZJO97/giphy.gif?cid=790b7611ac63dd9589d234411b6b371bd719dab1ddf35207&rid=giphy.gif&ct=g)
+![Create a new link](https://media1.giphy.com/media/hiiGba3GWq8vYw6VDv/giphy.gif?cid=790b761167a356543ecf90e14126f8bc71a8c68306885a6d&rid=giphy.gif&ct=g)
 
 
 #### Open a shortlink
@@ -82,8 +81,8 @@ If `test` is your short keyword, and `https://example.com` is your destination l
 If you are trying to open a shortlink that you have created eg: `test` from above, all you have to do is navigate to `https://go/test` and the browser will open the destination link
 
 
-## Useful
+## Useful Notes
 
-1. There is a metrics logging file `metrics.csv` that logs the visit time of each shortlink with its corresponding destination domain
+1. There is a metrics logging file `metrics.csv` that logs the visit time of each shortlink with its corresponding destination domain (Refer `metrics.csv.template` for format example)
 2. You can configure the port, the mapping file, the metrics file, the prefix to create a new domain, as well as the path of the certificate file all through the `config.ini` file
-3. This service can also be setup as a `launchd` service using the `setup/com.adityaarora.golinks.plist` file as reference. Ensure you change the `WorkingDirectory` as well as the `StandardOutPath` and `StandardErrorPath`. After that simply store the file in `/Library/LaunchDaemons` and then run `sudo launchctl load /Library/LaunchDaemons/com.adityaarora.golinks.plist` to load the service. The service should  be started automatically, and if there are any issues you can inspect the log files you put in.
+3. This service can also be setup as a `launchd` service using the [setup/com.adityaarora.golinks.plist](setup/com.adityaarora.golinks.plist) file as reference. Ensure you change the `WorkingDirectory` as well as the `StandardOutPath` and `StandardErrorPath`. After that simply store the file in `/Library/LaunchDaemons` and then run `sudo launchctl load /Library/LaunchDaemons/com.adityaarora.golinks.plist` to load the service. The service should  be started automatically, and if there are any issues you can inspect the log files you put in.
