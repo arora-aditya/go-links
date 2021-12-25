@@ -59,7 +59,7 @@ sudo python3 main.py --goserver &
 
 If `test` is your short keyword, and `https://example.com` is your destination link then you can setup the mapping by going into alfred and typing `new` and then `test` which is your shortlink and then your domain `https://example.com` and then pressing enter, it will automatically navigate you to the URL below [https://go/new?test=https://example.com](https://go/new?test=https://example.com), and the resulting webpage should confirm that the mapping has been added
 
-![Create a new link](https://media1.giphy.com/media/hiiGba3GWq8vYw6VDv/giphy.gif?cid=790b761167a356543ecf90e14126f8bc71a8c68306885a6d&rid=giphy.gif&ct=g)
+![Create a new link](https://media4.giphy.com/media/GRLffwcRlCJcNHq4dp/giphy.gif?cid=790b761162c7338f0ff4af917877b80d22d35155a089851b&rid=giphy.gif&ct=g)
 
 
 #### Open a shortlink
