@@ -16,7 +16,7 @@
 
     <key>ProgramArguments</key>
     <array>
-        <string>python3</string>
+        <string>/usr/local/anaconda3/bin/python3</string>
         <string>main.py</string>
     </array>
     
