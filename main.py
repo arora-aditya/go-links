@@ -63,6 +63,12 @@ class GoLinksHandler(BaseHTTPRequestHandler):
             response = self.get_metrics()
             self.construct_response(status=200, data=response)
             return
+        
+        # Create delete routes
+        elif parsed.path.startswith(DELETE_LINK_PREFIX):
+            response = MAPPING.delete_from_qs(parsed.query)
+            self.construct_response(status=200, data=response)
+            return
 
         # if route not found
         elif url is None:

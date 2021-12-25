@@ -62,9 +62,18 @@ class Mapping:
             self.save()
             return f"Deleted {key}"
         return f"No mapping found for {key}"
+    
+    def delete_from_qs(self, qs: str):
+        response = ""
+        for key, value in parse_qs(qs).items():
+            key = key.strip()
+            value = self.mapping.get(key, "")
+            response += self.delete(key)
+            response += f"<br />"
+        return response
 
     def __str__(self) -> str:
         s = ""
-        for key, value in self.mapping.items():
+        for key, value in sorted(self.mapping.items()):
             s += f"<h3><a href='{value}' target='_blank'>{key}</a> - {value}</h3>"
         return s
