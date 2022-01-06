@@ -14,7 +14,7 @@ STYLE = """<style>body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;m
 def uri_validator(x: str):
     try:
         result = urlparse(x)
-        return all([result.scheme, result.netloc])
+        return all([result.scheme, result.netloc if result.scheme != "file" else result.path])
     except:
         return False
 
