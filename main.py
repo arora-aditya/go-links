@@ -1,9 +1,14 @@
+
+from functools import partial
 from http.server import HTTPServer
 from http.server import BaseHTTPRequestHandler
 from ssl import wrap_socket
 from urllib.parse import urlparse
+from urllib.parse import parse_qs
 
 from pandas import read_csv
+
+from thefuzz import process
 
 from config import *
 from mapping import Mapping as Redirects
@@ -20,6 +25,12 @@ class GoLinksHandler(BaseHTTPRequestHandler):
         self.send_header("Content-type", "text/html")
         self.end_headers()
         self.wfile.write(bytes(META + STYLE + data, "utf-8"))
+    
+    def construct_json_response(self, status: int, data: str):
+        self.send_response(status)
+        self.send_header("Content-type", "application/json")
+        self.end_headers()
+        self.wfile.write(bytes(data, "utf-8"))
 
     def construct_redirect(self, url: str):
         self.send_response(302)
@@ -54,14 +65,21 @@ class GoLinksHandler(BaseHTTPRequestHandler):
 
         # Create new routes
         elif parsed.path.startswith(NEW_LINK_PREFIX):
-            response = MAPPING.set_from_qs(parsed.query)
-            self.construct_response(status=200, data=response)
+            response, ok = MAPPING.set_from_qs(parsed.query)
+            self.construct_response(status=200 if ok else 406, data=response)
             return
         
-        # Create new routes
+        # Analytics routes
         elif parsed.path.startswith(ANALYTICS_LINK_PREFIX):
             response = self.get_metrics()
             self.construct_response(status=200, data=response)
+            return
+        
+        # API routes
+        elif parsed.path.startswith(API_LINK_PREFIX):
+            search = parse_qs(urlparse(self.path).query).get("q", [""])[0]
+            response = MAPPING.search_mapping(search)
+            self.construct_json_response(status=200, data=response)
             return
         
         # Create delete routes
@@ -92,5 +110,6 @@ class GoLinksHandler(BaseHTTPRequestHandler):
 
 
 server = HTTPServer(("localhost", PORT), GoLinksHandler)
-server.socket = wrap_socket(server.socket, certfile=CERTIFICATE_FILE, server_side=True)
+if PORT == 443:
+    server.socket = wrap_socket(server.socket, certfile=CERTIFICATE_FILE, server_side=True)
 server.serve_forever()

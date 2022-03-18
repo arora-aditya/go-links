@@ -1,8 +1,12 @@
+from collections import OrderedDict
 from json import loads
 from json import dumps
+from typing import Tuple
 from urllib.parse import urljoin
 from urllib.parse import urlparse
 from urllib.parse import parse_qs
+
+from thefuzz import process
 
 
 META = """<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
@@ -19,19 +23,30 @@ def uri_validator(x: str):
         return False
 
 
+class LastUsedOrderedDict(OrderedDict):
+    'Store items in the order the keys were last added'
+
+    def __getitem__(self, key):
+        self.move_to_end(key)
+        return super().__getitem__(key)
+
+    def __setitem__(self, key, value):
+        super().__setitem__(key, value)
+        self.move_to_end(key)
+
 class Mapping:
     def __init__(self, path: str):
-        self.mapping = {}
+        self.mapping = LastUsedOrderedDict()
         self._path = path
         self.load()
-
+    
     def load(self):
         with open(self._path) as f:
-            self.mapping = loads(f.read())
+            self.mapping = LastUsedOrderedDict(loads(f.read()))
 
     def save(self):
         with open(self._path, "w") as f:
-            f.write(dumps(self.mapping, sort_keys=True, indent=4))
+            f.write(dumps(self.mapping, indent=4))
 
     def get(self, key: str):
         s = key.split("/")
@@ -44,8 +59,9 @@ class Mapping:
             self.mapping[key] = value
             self.save()
 
-    def set_from_qs(self, qs: str):
+    def set_from_qs(self, qs: str) -> Tuple[str, bool]:
         response = ""
+        ok = True
         for key, value in parse_qs(qs).items():
             value = value[0].strip()
             key = key.strip()
@@ -54,7 +70,8 @@ class Mapping:
                 response += f"{key} -> {value}<br />"
             else:
                 response += f"{key} -> {value} (invalid)<br />"
-        return response
+                ok = False
+        return response, ok
     
     def delete(self, key: str):
         if key in self.mapping:
@@ -65,12 +82,34 @@ class Mapping:
     
     def delete_from_qs(self, qs: str):
         response = ""
-        for key, value in parse_qs(qs).items():
+        for key, _ in parse_qs(qs).items():
             key = key.strip()
-            value = self.mapping.get(key, "")
             response += self.delete(key)
             response += f"<br />"
         return response
+    
+    def get_as_json(self) -> str:
+        result = []
+        for k, v in reversed(self.mapping.items()):
+            result.append({
+                "key": k,
+                "value": v
+            })
+        return dumps(result, indent=4)
+    
+    def search_mapping(self, search: str) -> dict:
+        if len(search) == 0:
+            return self.get_as_json()
+        keys = list(self.mapping.keys())
+        selected = process.extract(search, keys)
+        results = []
+        for key, _ in selected:
+            results.append({
+                "key": key,
+                "value": self.mapping[key]
+            })
+            
+        return dumps(results, indent=4)
 
     def __str__(self) -> str:
         s = ""
